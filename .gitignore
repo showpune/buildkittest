@@ -1,0 +1,3 @@
+/bin
+/buildkit-v0.12.4.linux-amd64.tar.gz
+kubernetes/.certs/*

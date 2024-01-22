@@ -1,0 +1,19 @@
+FROM ubuntu:latest
+RUN apt update && apt install ca-certificates -y
+#RUN apt-get update && apt-get install -y wget
+#USER 0
+#RUN wget "https://github.com/moby/buildkit/releases/download/v0.12.4/buildkit-v0.12.4.linux-amd64.tar.gz"
+#RUN tar -xzf "buildkit-v0.12.4.linux-amd64.tar.gz"
+
+COPY ./bin/buildctl /usr/local/bin/
+RUN chmod +x /usr/local/bin/buildctl
+WORKDIR /workspace
+
+COPY python/dockertest /workspace/Dockerfile
+COPY python/requirements.txt /workspace/requirements.txt
+
+
+# USER root
+
+#ENTRYPOINT [ "buildctl-daemonless.sh","build","--frontend","dockerfile.v0","--local","context=/workspace","--local","dockerfile=/workspace","--output", "type=image,name=showpune/buildkitout,push=true" ]
+# ENTRYPOINT [ "buildctl-daemonless.sh","build","--frontend","dockerfile.v0","--local","context=/workspace","--local","dockerfile=/workspace/Dockerfile" ]

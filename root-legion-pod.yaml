@@ -1,0 +1,37 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: root-legion-pod
+spec:
+  nodeName: virtual-node-legion-linux
+  nodeSelector:
+    kubernetes.io/os: linux
+    kubernetes.io/role: agent
+    type: virtual-kubelet
+  tolerations:
+  - key: virtual-kubelet.io/provider
+    operator: Exists
+  containers:
+  - name: buildkit-container
+    image: showpune/buildkit-test:simple
+    imagePullPolicy: Always
+    securityContext:
+      privileged: true
+    env:
+    - name: DOCKER_USERNAME
+      valueFrom:
+        secretKeyRef:
+          name: dockerhub-credentials
+          key: .dockerconfigjson
+    - name: DOCKER_PASSWORD
+      valueFrom:
+        secretKeyRef:
+          name: dockerhub-credentials
+          key: .dockerconfigjson    
+    resources:
+      limits:
+        cpu: "1"
+        memory: "512Mi"
+      requests:
+        cpu: "0.5"
+        memory: "256Mi"

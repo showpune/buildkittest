@@ -1,0 +1,43 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: rootless-legion-pod
+  annotations:
+    container.apparmor.security.beta.kubernetes.io/buildkit-container: unconfined
+spec:
+  nodeName: virtual-node-legion-linux
+  nodeSelector:
+    kubernetes.io/os: linux
+    kubernetes.io/role: agent
+    type: virtual-kubelet
+  tolerations:
+  - key: virtual-kubelet.io/provider
+    operator: Exists
+  containers:
+  - name: buildkit-container
+    image: showpune/buildkit-test:simple
+    imagePullPolicy: Always
+    securityContext:
+      seccompProfile:
+        type: Unconfined
+      runAsUser: 1000
+      runAsGroup: 1000
+    env:
+    - name: DOCKER_USERNAME
+      valueFrom:
+        secretKeyRef:
+          name: dockerhub-credentials
+          key: .dockerconfigjson
+    - name: DOCKER_PASSWORD
+      valueFrom:
+        secretKeyRef:
+          name: dockerhub-credentials
+          key: .dockerconfigjson    
+    resources:
+      limits:
+        cpu: "1"
+        memory: "512Mi"
+      requests:
+        cpu: "0.5"
+        memory: "256Mi"
+  priorityClassName: consumption

@@ -1,0 +1,89 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: buildkitd-legion
+  name: buildkitd-legion
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: buildkitd-legion
+  template:
+    metadata:
+      labels:
+        app: buildkitd-legion
+    spec:
+      nodeName: virtual-node-legion-linux
+      nodeSelector:
+        kubernetes.io/os: linux
+        kubernetes.io/role: agent
+        type: virtual-kubelet
+      tolerations:
+      - key: virtual-kubelet.io/provider
+        operator: Exists
+      containers:
+        - name: buildkitd
+          image: moby/buildkit:master
+          args:
+            - --addr
+            - unix:///run/buildkit/buildkitd.sock
+            - --addr
+            - tcp://0.0.0.0:9090
+            - --tlscacert
+            - /oryxcerts/ca.pem
+            - --tlscert
+            - /oryxcerts/cert.pem
+            - --tlskey
+            - /oryxcerts/key.pem
+          # the probe below will only work after Release v0.6.3
+          readinessProbe:
+            exec:
+              command:
+                - buildctl
+                - debug
+                - workers
+            initialDelaySeconds: 5
+            periodSeconds: 30
+          # the probe below will only work after Release v0.6.3
+          livenessProbe:
+            exec:
+              command:
+                - buildctl
+                - debug
+                - workers
+            initialDelaySeconds: 5
+            periodSeconds: 30
+          securityContext:
+            privileged: true
+          ports:
+            - containerPort: 9090
+          volumeMounts:
+            - name: certs
+              readOnly: true
+              mountPath: /oryxcerts
+          resources:
+            limits:
+              cpu: "2"
+              memory: "4G"
+            requests:
+              cpu: "2"
+              memory: "4G"
+      volumes:
+        # buildkit-daemon-certs must contain ca.pem, cert.pem, and key.pem
+        - name: certs
+          secret:
+            secretName: buildkit-daemon-certs
+---
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    app: buildkitd-legion
+  name: buildkitd-legion
+spec:
+  ports:
+    - port: 9090
+      protocol: TCP
+  selector:
+    app: buildkitd-legion
