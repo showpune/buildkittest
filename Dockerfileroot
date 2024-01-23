@@ -1,11 +1,11 @@
-FROM moby/buildkit:rootless
+FROM moby/buildkit:latest
 
 WORKDIR /workspace
 
 COPY python/dockertest /workspace/Dockerfile
 COPY python/requirements.txt /workspace/requirements.txt
 
-ENV BUILDKITD_FLAGS --oci-worker-no-process-sandbox
+#ENV BUILDKITD_FLAGS --oci-worker-no-process-sandbox
 
 #USER root
 
