@@ -1,7 +1,7 @@
 apiVersion: batch/v1
 kind: Job
 metadata:
-  name: root-legion-job
+  name: rootless-legion-job
 spec:
   template:
     spec:
@@ -23,7 +23,7 @@ spec:
         operator: Exists
       containers:
       - name: buildkit-container
-        image: showpune/buildkit-test:root
+        image: showpune/buildkit-test:rootless
         imagePullPolicy: Always
         securityContext:
           privileged: true
