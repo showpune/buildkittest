@@ -1,0 +1,50 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: rootless-noprivi-legion-job
+spec:
+  template:
+    spec:
+      volumes:
+      - name: docker-volume
+        secret:
+          secretName: dockerhub-credentials
+          items:
+          - key: .dockerconfigjson
+            path: config.json
+      restartPolicy: Never
+      nodeName: virtual-node-legion-linux
+      nodeSelector:
+        kubernetes.io/os: linux
+        kubernetes.io/role: agent
+        type: virtual-kubelet
+      tolerations:
+      - key: virtual-kubelet.io/provider
+        operator: Exists
+      containers:
+      - name: buildkit-container
+        image: showpune/buildkit-test:rootless
+        imagePullPolicy: Always
+        securityContext:
+        #  privileged: true
+        #  securityContext:
+          allowPrivilegeEscalation: true
+          capabilities:
+            add:
+            - SETUID 
+            - SETGID
+        #  runAsUser: 1000
+        #  runAsGroup: 1000
+        env:
+        - name: DOCKER_CONFIG
+          value: /etc/.docker
+        resources:
+          limits:
+            cpu: "1"
+            memory: "512Mi"
+          requests:
+            cpu: "0.5"
+            memory: "256Mi"
+        volumeMounts:
+        - name: docker-volume
+          mountPath: /etc/.docker

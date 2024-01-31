@@ -1,0 +1,60 @@
+apiVersion: k8se.microsoft.com/v1alpha1
+kind: ContainerAppJob
+metadata:
+  annotations:
+    containerapps.io/cpuRatio: "1"
+    containerapps.io/job-type: source-to-cloud
+    k8se.microsoft.com/armId: /subscriptions/d0822b01-62ea-4eb9-885b-95c60e4250b4/resourceGroups/zhiyong-legionprivate-rg/providers/Microsoft.App/builders/testbuilder
+    k8se.microsoft.com/restartedAt: "2024-01-25T13:07:00.767+00:00"
+    kubernetes.io/service-account.name: job-build-338a7207b745cada3ef1
+  creationTimestamp: "2024-01-25T13:07:01Z"
+  finalizers:
+  - containerappjob.finalizer.k8se.io
+  generation: 4
+  labels:
+    k8se.microsoft.com/environmentName: production
+  name: build-338a7207b745cada3ef1
+  namespace: k8se-apps
+  resourceVersion: "35326844"
+  uid: b68b625e-e30d-40c1-9766-4add93499503
+spec:
+  configuration:
+    activeDeadlineSeconds: 1200
+    crashLoopRetryLimit: 3
+    eventTriggerConfig:
+      completions: 0
+      parallelism: 0
+      scale: {}
+    identity:
+      authenticationEndpointEnabled: true
+      identities: []
+      identityHeader: bc550ca8-6bcd-41d3-a231-a12ffa9dd6b6
+      secretName: build-338a7207b745cada3ef1--msi
+      siteName: build-338a7207b745cada3ef1
+    manualTriggerConfig:
+      completions: 1
+      parallelism: 4
+    scheduleTriggerConfig:
+      completions: 0
+      cronExpression: ""
+      parallelism: 0
+    startingDeadlineSeconds: 0
+    triggerType: Manual
+  template:
+    containers:
+    - env:
+      - name: REGISTRY_HTTP_TLS_CERTIFICATE
+        value: LS0tLS1CRUdJTiBDRVJUSUZJQ0FURS0tLS0tCk1JSUNwekNDQVkrZ0F3SUJBZ0lSQUlRQWt5MHpRTi9sQWx2RFdZZ0JLYkF3RFFZSktvWklodmNOQVFFTEJRQXcKSURFZU1Cd0dBMVVFQXhNVlkyOXVkR0ZwYm1WeUxYSmxaMmx6ZEhKNUxXTmhNQjRYRFRJME1ERXlOVEV4TlRReQpNVm9YRFRJMU1ERXlOREV4TlRReU1Wb3dQakVkTUJzR0ExVUVDaE1VY0hKcGRtRjBaUzF5WldkcGMzUnllUzFyCk9ITXhIVEFiQmdOVkJBTVRGSEJ5YVhaaGRHVXRjbVZuYVhOMGNua3Rhemh6TUZrd0V3WUhLb1pJemowQ0FRWUkKS29aSXpqMERBUWNEUWdBRWNqMjljTURPamxYZFBaZlk4OC9ZQVQvRVZTV1VmVmhCdVErY1BZeGFSRmIyKzUrYwoySWpBb1B5WSt3OG9VR0dGYnlaUWhxb0dmUXBwYWw3cDAzMkdKcU9CaURDQmhUQU9CZ05WSFE4QkFmOEVCQU1DCkJhQXdIUVlEVlIwbEJCWXdGQVlJS3dZQkJRVUhBd0VHQ0NzR0FRVUZCd01DTUF3R0ExVWRFd0VCL3dRQ01BQXcKSHdZRFZSMGpCQmd3Rm9BVXlUT3VCSDlHMDJqS1ltaXFqdEhOMm5vRU5vOHdKUVlEVlIwUkJCNHdISUlVY0hKcApkbUYwWlMxeVpXZHBjM1J5ZVMxck9IT0hCR1JrQW1Nd0RRWUpLb1pJaHZjTkFRRUxCUUFEZ2dFQkFCZS9vTFh2CllROWExYXdPODVQeVBGVXEvc3VqMGx1dVdCMU5FaGhOT1Zid3Y3TGtOb0pRdGw2UEdtQzJqaGR2cWtJL1h5OWIKYklibGwwOFFJSXlUSkREb1U0NVhGSkFvL2ZBaWhiWUVLTUQzaFNMNmJTMzdocjYzYll4RTJBVmdyTVlON2crRApvd212a2xGYnJZWlkrREt4U3NDT1V3ZUwvMjBxWGdFWER0M1RJRU1RMmVoVVZCaXZHaXNrZ0s5R0dlSUExUnBnCndaRFpEeG5sMGJqaG1jWWNydmdWUUlvSVZ1WWV3R0FFbUZIcktaaVFlSVVhc3ZKNWo4akFIcUxUWHRRUndjTEwKeEdiWlJLZnhQVEJIOFBqVVNNR1pEbGxYYlZIS2crV1BVb1BXSGdyMWozbmdGc3IxeFpWSHB1cjFSZy92ZU91ZgoyR3crdTUzeWZ6MzBPU2s9Ci0tLS0tRU5EIENFUlRJRklDQVRFLS0tLS0KLS0tLS1CRUdJTiBDRVJUSUZJQ0FURS0tLS0tCk1JSURMRENDQWhTZ0F3SUJBZ0lSQUpBYnFGdlJYMTM1SWkxUk1lZUdzZnN3RFFZSktvWklodmNOQVFFTEJRQXcKSURFZU1Cd0dBMVVFQXhNVlkyOXVkR0ZwYm1WeUxYSmxaMmx6ZEhKNUxXTmhNQjRYRFRJek1USXhNREV3TlRndwpNbG9YRFRJME1USXdPVEV3TlRnd01sb3dJREVlTUJ3R0ExVUVBeE1WWTI5dWRHRnBibVZ5TFhKbFoybHpkSEo1CkxXTmhNSUlCSWpBTkJna3Foa2lHOXcwQkFRRUZBQU9DQVE4QU1JSUJDZ0tDQVFFQXhiaTNIc2pMM3QrMGRtVG4KUmhMUWdMZXFxVCtFTlZNaHoxVFkwRTA5Tm92Qnd3ZXJnSWhHRnZKUWVFRS9EaDY1bk5zVnIvOHRZeTZKRHJ5TQowWEVqbGhzRlhnYTNLczZEQ2ZTYWRFV1hoRjlWY0tNQWZhQVZkeWwwYmY1R2xMemN6M1VibXdEVWw0K3p5MXl0CkcxbTJBSnBrTFIxNzA1UEVMY0YvOWZjdDJtdk5Gcm1NNUJjZmdJMHBaakwyWm9HZVJObWd6RTg1bkdFMitZalMKcnZGelhjOTBaTi9OSWxsbkZnQ1NmY21USVlDOUtWNHo1OXhFS09mTHRoeUlieUZKWnczM2w0V0czM2REc1RYNgpwSTBzT3RNOVJ5ZjY3cEs2VmlscWdtRDRreE95WkE3aHpiV3ZNYUlWc3l0MVJObHdZT1A2WHJqQTVpWktqc052CjMwbUY0d0lEQVFBQm8yRXdYekFPQmdOVkhROEJBZjhFQkFNQ0FxUXdIUVlEVlIwbEJCWXdGQVlJS3dZQkJRVUgKQXdFR0NDc0dBUVVGQndNQ01BOEdBMVVkRXdFQi93UUZNQU1CQWY4d0hRWURWUjBPQkJZRUZNa3pyZ1IvUnRObwp5bUpvcW83UnpkcDZCRGFQTUEwR0NTcUdTSWIzRFFFQkN3VUFBNElCQVFEQldxNDQxUzJQc0RJWnk4MDBiQUxZClBQS3d1UVp2Ui8zZE9oNDl6eml3TDduUG50NHV0bFZiNDZRRlZQWndobUk5SGpQc2xEdXBrSHlqSW1tTlFhbTEKNFNxdkVGSi83WGVQazhxdHh3QVNEVnBhSDNocXg4OHdjTkpteGwxMlJsTmNJTmpLTmxNWmZLMFJaSVNiTTBWdgpCREVYKzgrZ0NFT0xRc2xUbzdJWC9TS2o4TmNTL3liZzhZZEJDR1RsaXVLQ3h2UDhCRWFQRWVqclhKZGVDbjJYCiszTjZMSUJLVyt0WW5rYXdkb1p2SHdaRkRzM0VzVHpiVmZiaE4yelNSVk9rcFJJOWxXTVhubzlHNGp3N0h2K00KWllXZ2loYkJnTVllYVJXOWl4M01ycC9TK0M4bFkycjRvSUZIelBNek9hZHVJeTlEdmJKWnFqMmNqamhJWS9pSQotLS0tLUVORCBDRVJUSUZJQ0FURS0tLS0tCg==
+      - name: REGISTRY_AUTH_USERNAME
+        value: xUQnPqkzAC
+      - name: REGISTRY_AUTH_PASSWORD
+        value: qn256Z3j47YgRH18
+      image: mcr.microsoft.com/oryx/builder:aca-debian-bullseye-20240123.1
+      name: build-338a7207b745cada3ef1
+      resources:
+        cpu: "1"
+        ephemeral-storage: 4Gi
+        memory: 1Gi
+    execProbe: {}
+status:
+  jobProvisioningState: Provisioned

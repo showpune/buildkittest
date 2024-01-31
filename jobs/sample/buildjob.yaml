@@ -1,0 +1,304 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  annotations:
+    batch.kubernetes.io/job-tracking: ""
+    containerapps.io/cpuRatio: "1"
+    containerapps.io/job-type: source-to-cloud
+    fluentbit.io/exclude: "false"
+    k8se.microsoft.com/armId: /subscriptions/d0822b01-62ea-4eb9-885b-95c60e4250b4/resourceGroups/zhiyong-legionprivate-rg/providers/Microsoft.App/builders/testbuilder
+    k8se.microsoft.com/restartedAt: "2024-01-25T13:07:00.767+00:00"
+    kind: jobs
+    kubernetes.io/service-account.name: job-build-338a7207b745cada3ef1
+  creationTimestamp: "2024-01-25T14:50:17Z"
+  generation: 2
+  labels:
+    containerapp.io/job-name: build-338a7207b745cada3ef1
+    k8se.microsoft.com/environmentName: production
+    k8se.microsoft.com/owner: containerjobs
+  name: build-338a7207b745cada3ef1-mfxagil
+  namespace: k8se-apps
+  ownerReferences:
+  - apiVersion: k8se.microsoft.com/v1alpha1
+    blockOwnerDeletion: true
+    controller: true
+    kind: ContainerAppJob
+    name: build-338a7207b745cada3ef1
+    uid: b68b625e-e30d-40c1-9766-4add93499503
+  resourceVersion: "35388788"
+  uid: abc73850-eba4-4403-bf86-2ad48e8c9376
+spec:
+  activeDeadlineSeconds: 1200
+  backoffLimit: 3
+  completionMode: NonIndexed
+  completions: 1
+  parallelism: 4
+  selector:
+    matchLabels:
+      batch.kubernetes.io/controller-uid: abc73850-eba4-4403-bf86-2ad48e8c9376
+  suspend: true
+  template:
+    metadata:
+      annotations:
+        checksum/envoysc-certs: f88a4c5c7ca4b605d9283bc601c01bf15d40311e4f47129550
+        checksum/envoysc-config: ea388aa42cd22cd8fc2306ed6edf2c06848550eff7b591160e
+        checksum/proxy-certs: f58d9b56c95ef3b3dd52d8c9c5b6e59130c24b2fa595ebdc08
+        containerapps.io/cpuRatio: "1"
+        containerapps.io/job-type: source-to-cloud
+        fluentbit.io/exclude: "false"
+        k8se.microsoft.com/armId: /subscriptions/d0822b01-62ea-4eb9-885b-95c60e4250b4/resourceGroups/zhiyong-legionprivate-rg/providers/Microsoft.App/builders/testbuilder
+        k8se.microsoft.com/restartedAt: "2024-01-25T13:07:00.767+00:00"
+        kind: jobs
+        kubernetes.io/service-account.name: job-build-338a7207b745cada3ef1
+        testjavajar-logs-destination: job
+      creationTimestamp: null
+      labels:
+        batch.kubernetes.io/controller-uid: abc73850-eba4-4403-bf86-2ad48e8c9376
+        batch.kubernetes.io/job-name: build-338a7207b745cada3ef1-mfxagil
+        containerapp.io/job-name: build-338a7207b745cada3ef1
+        controller-uid: abc73850-eba4-4403-bf86-2ad48e8c9376
+        job-name: build-338a7207b745cada3ef1-mfxagil
+        k8se.microsoft.com/environmentName: production
+        k8se.microsoft.com/owner: containerjobs
+      name: build-338a7207b745cada3ef1
+      namespace: k8se-apps
+    spec:
+      automountServiceAccountToken: false
+      containers:
+      - args:
+        - --log-level
+        - warning
+        - --drain-time-s
+        - "500"
+        - --drain-strategy
+        - immediate
+        - -c
+        - /tmp/envoy/envoy.yaml
+        env:
+        - name: POD_NAME
+          valueFrom:
+            fieldRef:
+              apiVersion: v1
+              fieldPath: metadata.name
+        - name: POD_NAMESPACE
+          valueFrom:
+            fieldRef:
+              apiVersion: v1
+              fieldPath: metadata.namespace
+        - name: HEALTH_PORT
+          value: "23045"
+        - name: ENVOY_CONFIG
+          value: '{"clusters":null,"listeners":[{"name":"k8se-apps_build-338a7207b745cada3ef1-mfxagil","port":23143,"filterChain":[]}]}'
+        - name: IS_JOB
+          value: "True"
+        image: showpune.azurecr.io/root/envoysc:test-build
+        imagePullPolicy: IfNotPresent
+        lifecycle:
+          postStart:
+            exec:
+              command:
+              - /bin/sh
+              - /wait_ready.sh
+        name: k8se-envoysc
+        readinessProbe:
+          failureThreshold: 10
+          httpGet:
+            httpHeaders:
+            - name: x-k8se-health-check
+              value: "true"
+            path: /healthz
+            port: 23045
+            scheme: HTTP
+          periodSeconds: 3
+          successThreshold: 1
+          timeoutSeconds: 1
+        resources:
+          limits:
+            cpu: 300m
+            memory: 1536Mi
+          requests:
+            cpu: 15m
+            memory: 100Mi
+        securityContext:
+          runAsGroup: 101
+          runAsNonRoot: true
+          runAsUser: 101
+        terminationMessagePath: /dev/termination-log
+        terminationMessagePolicy: File
+        volumeMounts:
+        - mountPath: /etc/envoy-templates
+          name: envoy-config
+        - mountPath: /etc/envoy/certs
+          name: envoy-xds-certs
+      - command:
+        - /bin/sh
+        - -c
+        - /proxy & while true; do if test -f '/tmp/main_completed'; then exit 0; fi;
+          sleep 5; done
+        env:
+        - name: POD_NAME
+          valueFrom:
+            fieldRef:
+              apiVersion: v1
+              fieldPath: metadata.name
+        - name: POD_NAMESPACE
+          valueFrom:
+            fieldRef:
+              apiVersion: v1
+              fieldPath: metadata.namespace
+        envFrom:
+        - configMapRef:
+            name: k8se-localproxy
+        image: showpune.azurecr.io/root/proxy:test-build
+        imagePullPolicy: IfNotPresent
+        lifecycle:
+          postStart:
+            exec:
+              command:
+              - /proxy
+              - --check-ready
+        name: k8se-localproxy
+        readinessProbe:
+          exec:
+            command:
+            - stat
+            - /ready
+          failureThreshold: 10
+          periodSeconds: 3
+          successThreshold: 1
+          timeoutSeconds: 1
+        resources:
+          limits:
+            cpu: 100m
+            memory: 1Gi
+          requests:
+            cpu: 15m
+            memory: 100Mi
+        securityContext:
+          capabilities:
+            add:
+            - NET_ADMIN
+            - NET_RAW
+            drop:
+            - ALL
+        terminationMessagePath: /dev/termination-log
+        terminationMessagePolicy: File
+        volumeMounts:
+        - mountPath: /etc/localproxy/certs
+          name: localproxy-certs
+      - env:
+        - name: APP_IMAGE
+          value: 100.100.2.99:8443/registry/testjavajar
+        - name: ACR_RESOURCE_NAME
+          value: 100.100.2.99:8443
+        - name: FILE_UPLOAD_BLOB_NAME
+          value: testjavajar
+        - name: FILE_UPLOAD_CONTAINER_URL
+          value: https://s2c338a7207b745cada3ef1.blob.core.windows.net/fileupload-338a7207b745cada3ef1
+        - name: CORRELATION_ID
+          value: 968cbafa410e9f0635bf7225ebf29cb5
+        - name: REGISTRY_HTTP_TLS_CERTIFICATE
+          value: LS0tLS1CRUdJTiBDRVJUSUZJQ0FURS0tLS0tCk1JSUNwekNDQVkrZ0F3SUJBZ0lSQUlRQWt5MHpRTi9sQWx2RFdZZ0JLYkF3RFFZSktvWklodmNOQVFFTEJRQXcKSURFZU1Cd0dBMVVFQXhNVlkyOXVkR0ZwYm1WeUxYSmxaMmx6ZEhKNUxXTmhNQjRYRFRJME1ERXlOVEV4TlRReQpNVm9YRFRJMU1ERXlOREV4TlRReU1Wb3dQakVkTUJzR0ExVUVDaE1VY0hKcGRtRjBaUzF5WldkcGMzUnllUzFyCk9ITXhIVEFiQmdOVkJBTVRGSEJ5YVhaaGRHVXRjbVZuYVhOMGNua3Rhemh6TUZrd0V3WUhLb1pJemowQ0FRWUkKS29aSXpqMERBUWNEUWdBRWNqMjljTURPamxYZFBaZlk4OC9ZQVQvRVZTV1VmVmhCdVErY1BZeGFSRmIyKzUrYwoySWpBb1B5WSt3OG9VR0dGYnlaUWhxb0dmUXBwYWw3cDAzMkdKcU9CaURDQmhUQU9CZ05WSFE4QkFmOEVCQU1DCkJhQXdIUVlEVlIwbEJCWXdGQVlJS3dZQkJRVUhBd0VHQ0NzR0FRVUZCd01DTUF3R0ExVWRFd0VCL3dRQ01BQXcKSHdZRFZSMGpCQmd3Rm9BVXlUT3VCSDlHMDJqS1ltaXFqdEhOMm5vRU5vOHdKUVlEVlIwUkJCNHdISUlVY0hKcApkbUYwWlMxeVpXZHBjM1J5ZVMxck9IT0hCR1JrQW1Nd0RRWUpLb1pJaHZjTkFRRUxCUUFEZ2dFQkFCZS9vTFh2CllROWExYXdPODVQeVBGVXEvc3VqMGx1dVdCMU5FaGhOT1Zid3Y3TGtOb0pRdGw2UEdtQzJqaGR2cWtJL1h5OWIKYklibGwwOFFJSXlUSkREb1U0NVhGSkFvL2ZBaWhiWUVLTUQzaFNMNmJTMzdocjYzYll4RTJBVmdyTVlON2crRApvd212a2xGYnJZWlkrREt4U3NDT1V3ZUwvMjBxWGdFWER0M1RJRU1RMmVoVVZCaXZHaXNrZ0s5R0dlSUExUnBnCndaRFpEeG5sMGJqaG1jWWNydmdWUUlvSVZ1WWV3R0FFbUZIcktaaVFlSVVhc3ZKNWo4akFIcUxUWHRRUndjTEwKeEdiWlJLZnhQVEJIOFBqVVNNR1pEbGxYYlZIS2crV1BVb1BXSGdyMWozbmdGc3IxeFpWSHB1cjFSZy92ZU91ZgoyR3crdTUzeWZ6MzBPU2s9Ci0tLS0tRU5EIENFUlRJRklDQVRFLS0tLS0KLS0tLS1CRUdJTiBDRVJUSUZJQ0FURS0tLS0tCk1JSURMRENDQWhTZ0F3SUJBZ0lSQUpBYnFGdlJYMTM1SWkxUk1lZUdzZnN3RFFZSktvWklodmNOQVFFTEJRQXcKSURFZU1Cd0dBMVVFQXhNVlkyOXVkR0ZwYm1WeUxYSmxaMmx6ZEhKNUxXTmhNQjRYRFRJek1USXhNREV3TlRndwpNbG9YRFRJME1USXdPVEV3TlRnd01sb3dJREVlTUJ3R0ExVUVBeE1WWTI5dWRHRnBibVZ5TFhKbFoybHpkSEo1CkxXTmhNSUlCSWpBTkJna3Foa2lHOXcwQkFRRUZBQU9DQVE4QU1JSUJDZ0tDQVFFQXhiaTNIc2pMM3QrMGRtVG4KUmhMUWdMZXFxVCtFTlZNaHoxVFkwRTA5Tm92Qnd3ZXJnSWhHRnZKUWVFRS9EaDY1bk5zVnIvOHRZeTZKRHJ5TQowWEVqbGhzRlhnYTNLczZEQ2ZTYWRFV1hoRjlWY0tNQWZhQVZkeWwwYmY1R2xMemN6M1VibXdEVWw0K3p5MXl0CkcxbTJBSnBrTFIxNzA1UEVMY0YvOWZjdDJtdk5Gcm1NNUJjZmdJMHBaakwyWm9HZVJObWd6RTg1bkdFMitZalMKcnZGelhjOTBaTi9OSWxsbkZnQ1NmY21USVlDOUtWNHo1OXhFS09mTHRoeUlieUZKWnczM2w0V0czM2REc1RYNgpwSTBzT3RNOVJ5ZjY3cEs2VmlscWdtRDRreE95WkE3aHpiV3ZNYUlWc3l0MVJObHdZT1A2WHJqQTVpWktqc052CjMwbUY0d0lEQVFBQm8yRXdYekFPQmdOVkhROEJBZjhFQkFNQ0FxUXdIUVlEVlIwbEJCWXdGQVlJS3dZQkJRVUgKQXdFR0NDc0dBUVVGQndNQ01BOEdBMVVkRXdFQi93UUZNQU1CQWY4d0hRWURWUjBPQkJZRUZNa3pyZ1IvUnRObwp5bUpvcW83UnpkcDZCRGFQTUEwR0NTcUdTSWIzRFFFQkN3VUFBNElCQVFEQldxNDQxUzJQc0RJWnk4MDBiQUxZClBQS3d1UVp2Ui8zZE9oNDl6eml3TDduUG50NHV0bFZiNDZRRlZQWndobUk5SGpQc2xEdXBrSHlqSW1tTlFhbTEKNFNxdkVGSi83WGVQazhxdHh3QVNEVnBhSDNocXg4OHdjTkpteGwxMlJsTmNJTmpLTmxNWmZLMFJaSVNiTTBWdgpCREVYKzgrZ0NFT0xRc2xUbzdJWC9TS2o4TmNTL3liZzhZZEJDR1RsaXVLQ3h2UDhCRWFQRWVqclhKZGVDbjJYCiszTjZMSUJLVyt0WW5rYXdkb1p2SHdaRkRzM0VzVHpiVmZiaE4yelNSVk9rcFJJOWxXTVhubzlHNGp3N0h2K00KWllXZ2loYkJnTVllYVJXOWl4M01ycC9TK0M4bFkycjRvSUZIelBNek9hZHVJeTlEdmJKWnFqMmNqamhJWS9pSQotLS0tLUVORCBDRVJUSUZJQ0FURS0tLS0tCg==
+        - name: REGISTRY_AUTH_USERNAME
+          value: xUQnPqkzAC
+        - name: REGISTRY_AUTH_PASSWORD
+          value: qn256Z3j47YgRH18
+        - name: MI_ACCESS_TOKEN
+          value: eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiIsIng1dCI6IjVCM25SeHRRN2ppOGVORGMzRnkwNUtmOTdaRSIsImtpZCI6IjVCM25SeHRRN2ppOGVORGMzRnkwNUtmOTdaRSJ9.eyJhdWQiOiJodHRwczovL3N0b3JhZ2UuYXp1cmUuY29tIiwiaXNzIjoiaHR0cHM6Ly9zdHMud2luZG93cy5uZXQvNzJmOTg4YmYtODZmMS00MWFmLTkxYWItMmQ3Y2QwMTFkYjQ3LyIsImlhdCI6MTcwNjE4MzM5NywibmJmIjoxNzA2MTgzMzk3LCJleHAiOjE3MDYyNzAwOTcsImFpbyI6IkUyVmdZUGdUdjluaU1jODloMXpSaFV4ZnZweVBBUUE9IiwiYXBwaWQiOiIyMTRmNDUyNC03YWJmLTRjZmQtYWFhZS04MmJmODBlODU2N2EiLCJhcHBpZGFjciI6IjIiLCJpZHAiOiJodHRwczovL3N0cy53aW5kb3dzLm5ldC83MmY5ODhiZi04NmYxLTQxYWYtOTFhYi0yZDdjZDAxMWRiNDcvIiwib2lkIjoiODQ2Y2YyZDgtMTRmZC00MzJlLTljMjQtMGI1MDIwMWIxZjdiIiwicmgiOiIwLkFSb0F2NGo1Y3ZHR3IwR1JxeTE4MEJIYlI0R21CdVRVODZoQ2tMYkNzQ2xKZXZFYUFBQS4iLCJzdWIiOiI4NDZjZjJkOC0xNGZkLTQzMmUtOWMyNC0wYjUwMjAxYjFmN2IiLCJ0aWQiOiI3MmY5ODhiZi04NmYxLTQxYWYtOTFhYi0yZDdjZDAxMWRiNDciLCJ1dGkiOiJfYkIwNEtPUU0weWIyV3hjWnUxV0FnIiwidmVyIjoiMS4wIiwieG1zX2F6X3JpZCI6Ii9zdWJzY3JpcHRpb25zL2QwODIyYjAxLTYyZWEtNGViOS04ODViLTk1YzYwZTQyNTBiNC9yZXNvdXJjZWdyb3Vwcy9NQ19ibHVlZGVzZXJ0LTlhMjI0ZjJlLXJnX2JsdWVkZXNlcnQtOWEyMjRmMmVfZWFzdHVzL3Byb3ZpZGVycy9NaWNyb3NvZnQuQ29tcHV0ZS92aXJ0dWFsTWFjaGluZVNjYWxlU2V0cy9ha3Mtc3lzdGVtcG9vbC0zNjMwMjA0MS12bXNzIiwieG1zX21pcmlkIjoiL3N1YnNjcmlwdGlvbnMvZDA4MjJiMDEtNjJlYS00ZWI5LTg4NWItOTVjNjBlNDI1MGI0L3Jlc291cmNlZ3JvdXBzL2JsdWVkZXNlcnQtOWEyMjRmMmUtcmcvcHJvdmlkZXJzL01pY3Jvc29mdC5NYW5hZ2VkSWRlbnRpdHkvdXNlckFzc2lnbmVkSWRlbnRpdGllcy9ibHVlZGVzZXJ0LTlhMjI0ZjJlLWt1YmVsZXQtaW5kZW50aXR5In0.PTEZig9zvLo1Lp2dyovt5m1eWeDgEA7RNcmOrBl0LuQuzlIw8uOKGZegvUjuxS2BH2xtp13F6DCibcxS2n__P2f-vs7V2EArcYIpc01F_kM6425qfQs6wouO0wsep82GQkL_mCLh09DdXLpCyHoUMWxLpZ6u2lkyoTS1VgOLjwD790FAkNrB9TWUpdhI6xTnozoGG0gd6sMa8ZoNuygwcgxdq5LSQoomZR0WBbnOqhuceFF5XGTLwdpuTHKZVFAKoD9z96UTxWjM21y7m_w48UdwHtV0sMwLGeWpCqoueImj4jVSyE7_f2EhdTS45SDaOrf2BwZRob8lX6ceget1Lg
+        - name: CONTAINER_APP_JOB_NAME
+          value: build-338a7207b745cada3ef1
+        - name: CONTAINER_APP_JOB_EXECUTION_NAME
+          valueFrom:
+            fieldRef:
+              apiVersion: v1
+              fieldPath: metadata.labels['job-name']
+        - name: CONTAINER_APP_REPLICA_NAME
+          valueFrom:
+            fieldRef:
+              apiVersion: v1
+              fieldPath: metadata.name
+        image: mcr.microsoft.com/oryx/builder:aca-debian-bullseye-20240123.1
+        imagePullPolicy: Always
+        name: testjavajar
+        resources:
+          limits:
+            cpu: "1"
+            k8se.microsoft.com/cpu: 1k
+            memory: 1Gi
+          requests:
+            cpu: 470m
+            k8se.microsoft.com/cpu: 1k
+            memory: 1Gi
+        securityContext:
+          allowPrivilegeEscalation: false
+          capabilities:
+            add:
+            - NET_BIND_SERVICE
+            - CHOWN
+            - SETUID
+            - SETGID
+            - DAC_OVERRIDE
+            - FOWNER
+            - SETFCAP
+            - AUDIT_WRITE
+            - MKNOD
+            - SYS_CHROOT
+            - NET_RAW
+            - SETPCAP
+            - KILL
+            - FSETID
+            drop:
+            - ALL
+        terminationMessagePath: /dev/termination-log
+        terminationMessagePolicy: File
+      dnsConfig:
+        nameservers:
+        - 100.100.129.249
+        options:
+        - name: ndots
+          value: "5"
+        searches:
+        - k8se-apps.svc.cluster.local
+        - svc.cluster.local
+        - cluster.local
+      dnsPolicy: None
+      enableServiceLinks: false
+      priorityClassName: consumption
+      restartPolicy: Never
+      schedulerName: default-scheduler
+      securityContext:
+        seccompProfile:
+          type: RuntimeDefault
+      serviceAccount: job-build-338a7207b745cada3ef1
+      serviceAccountName: job-build-338a7207b745cada3ef1
+      terminationGracePeriodSeconds: 30
+      tolerations:
+      - key: K8seAppWorkload
+        operator: Exists
+      - key: CriticalAddonsOnly
+        operator: Exists
+      volumes:
+      - configMap:
+          defaultMode: 420
+          name: k8se-envoysc
+        name: envoy-config
+      - name: envoy-xds-certs
+        secret:
+          defaultMode: 420
+          secretName: k8se-envoysc
+      - name: localproxy-certs
+        secret:
+          defaultMode: 420
+          secretName: k8se-localproxy
+  ttlSecondsAfterFinished: 2592000
+status:
+  completionTime: "2024-01-25T14:52:40Z"
+  conditions:
+  - lastProbeTime: "2024-01-25T14:52:40Z"
+    lastTransitionTime: "2024-01-25T14:52:40Z"
+    status: "True"
+    type: Complete
+  ready: 0
+  startTime: "2024-01-25T14:50:17Z"
+  succeeded: 1
+  uncountedTerminatedPods: {}

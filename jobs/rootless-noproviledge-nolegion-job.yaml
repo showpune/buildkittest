@@ -1,0 +1,35 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: rootless-noprivi-nonlegion-job
+spec:
+  template:
+    metadata:
+      annotations:
+        container.apparmor.security.beta.kubernetes.io/buildkit-container: unconfined
+    spec:
+      volumes:
+      - name: docker-volume
+        secret:
+          secretName: dockerhub-credentials
+          items:
+          - key: .dockerconfigjson
+            path: config.json
+      restartPolicy: Never
+      containers:
+      - name: buildkit-container
+        image: showpune/buildkit-test:rootless
+        imagePullPolicy: Always
+        env:
+        - name: DOCKER_CONFIG
+          value: /etc/.docker
+        resources:
+          limits:
+            cpu: "1"
+            memory: "512Mi"
+          requests:
+            cpu: "0.5"
+            memory: "256Mi"
+        volumeMounts:
+        - name: docker-volume
+          mountPath: /etc/.docker
