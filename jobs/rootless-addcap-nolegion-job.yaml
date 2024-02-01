@@ -1,7 +1,7 @@
 apiVersion: batch/v1
 kind: Job
 metadata:
-  name: rootless-noproviledge-legion-job
+  name: rootless-addcap-nolegion-job
   labels:
     type: buildkit-test
 spec:
@@ -15,14 +15,6 @@ spec:
           - key: .dockerconfigjson
             path: config.json
       restartPolicy: Never
-      nodeName: virtual-node-legion-linux
-      nodeSelector:
-        kubernetes.io/os: linux
-        kubernetes.io/role: agent
-        type: virtual-kubelet
-      tolerations:
-      - key: virtual-kubelet.io/provider
-        operator: Exists
       containers:
       - name: buildkit-container
         image: showpune/buildkit-test:rootless

@@ -33,6 +33,8 @@ startBuildkitd() {
     echo "$helper $BUILDKITD  --debug  $BUILDKITD_FLAGS --addr=$addr"
     $helper $BUILDKITD --debug $BUILDKITD_FLAGS --addr=$addr >$tmp/log 2>&1 &
     pid=$!
+    echo "buildkitd pid: $pid"
+    ps
     echo $pid >$tmp/pid
     echo $addr >$tmp/addr
 }
@@ -65,6 +67,10 @@ else
     echo "can't execute newuidmap"
 fi
 
+
+
 startBuildkitd
+
+
 waitForBuildkitd
 $BUILDCTL --addr=$(cat $tmp/addr) "$@"
