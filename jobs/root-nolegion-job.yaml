@@ -1,7 +1,9 @@
 apiVersion: batch/v1
 kind: Job
 metadata:
-  name: root-job
+  name: root-nolegion-job
+  labels:
+    type: buildkit-test
 spec:
   template:
     spec:

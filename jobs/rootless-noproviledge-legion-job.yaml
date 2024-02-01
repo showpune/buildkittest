@@ -1,7 +1,9 @@
 apiVersion: batch/v1
 kind: Job
 metadata:
-  name: rootless-noprivi-legion-job
+  name: rootless-noproviledge-legion-job
+  labels:
+    type: buildkit-test
 spec:
   template:
     spec:
@@ -26,15 +28,11 @@ spec:
         image: showpune/buildkit-test:rootless
         imagePullPolicy: Always
         securityContext:
-        #  privileged: true
-        #  securityContext:
           allowPrivilegeEscalation: true
           capabilities:
             add:
             - SETUID 
             - SETGID
-        #  runAsUser: 1000
-        #  runAsGroup: 1000
         env:
         - name: DOCKER_CONFIG
           value: /etc/.docker

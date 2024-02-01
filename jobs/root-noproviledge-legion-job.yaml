@@ -1,7 +1,7 @@
 apiVersion: batch/v1
 kind: Job
 metadata:
-  name: rootless-legion-job
+  name: root-noproviledge-legion-job
   labels:
     type: buildkit-test
 spec:
@@ -25,10 +25,10 @@ spec:
         operator: Exists
       containers:
       - name: buildkit-container
-        image: showpune/buildkit-test:rootless
+        image: showpune/buildkit-test:root
         imagePullPolicy: Always
         securityContext:
-          privileged: true
+        #  privileged: true
         env:
         - name: DOCKER_CONFIG
           value: /etc/.docker

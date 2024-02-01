@@ -30,8 +30,8 @@ startBuildkitd() {
         addr=unix://$XDG_RUNTIME_DIR/buildkit/buildkitd.sock
         helper=$ROOTLESSKIT
     fi
-    echo "$helper $BUILDKITD $BUILDKITD_FLAGS --addr=$addr"
-    $helper $BUILDKITD $BUILDKITD_FLAGS --addr=$addr >$tmp/log 2>&1 &
+    echo "$helper $BUILDKITD  --debug  $BUILDKITD_FLAGS --addr=$addr"
+    $helper $BUILDKITD --debug $BUILDKITD_FLAGS --addr=$addr >$tmp/log 2>&1 &
     pid=$!
     echo $pid >$tmp/pid
     echo $addr >$tmp/addr
@@ -54,6 +54,16 @@ waitForBuildkitd() {
         try=$(expr $try + 1)
     done
 }
+
+id
+command_path=$(which newuidmap)
+
+if [ -x "$command_path" ]
+then
+    echo "can execute newuidmap"
+else
+    echo "can't execute newuidmap"
+fi
 
 startBuildkitd
 waitForBuildkitd

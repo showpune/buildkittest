@@ -1,7 +1,9 @@
 apiVersion: batch/v1
 kind: Job
 metadata:
-  name: rootless-noprivi-nonlegion-job
+  name: rootless-noproviledge-nolegion-job
+  labels:
+    type: buildkit-test
 spec:
   template:
     metadata:
