@@ -11,5 +11,6 @@ ENV BUILDKITD_FLAGS --oci-worker-no-process-sandbox
 
 #USER root
 
-ENTRYPOINT [ "aca-daemonless.sh","build","--frontend","dockerfile.v0","--local","context=/workspace","--local","dockerfile=/workspace","--output", "type=image,name=showpune/buildkitout,push=true" ]
+#ENTRYPOINT [ "aca-daemonless.sh","build","--frontend","dockerfile.v0","--local","context=/workspace","--local","dockerfile=/workspace","--output", "type=image,name=showpune/buildkitout,push=true" ]
+ENTRYPOINT [ "aca-daemonless.sh","build","--frontend","dockerfile.v0","--local","context=/workspace","--local","dockerfile=/workspace"]
 #ENTRYPOINT [ "buildctl-daemonless.sh","build","--frontend","dockerfile.v0","--local","context=/workspace","--local","dockerfile=/workspace" ]

@@ -21,26 +21,6 @@ set -eu
 tmp=$(mktemp -d /tmp/buildctl-daemonless.XXXXXX)
 trap "kill \$(cat $tmp/pid) || true; wait \$(cat $tmp/pid) || true; rm -rf $tmp" EXIT
 
-listprocess() {
-    pids=$(ps | awk '{if(NR>1)print $1}')
-    for pid in $pids
-    do
-        if [ -e /proc/$pid/status ]
-        then
-            # uid=$(cat /proc/$pid/status | grep '^Uid:' | awk '{print $2}')
-            # gid=$(cat /proc/$pid/status | grep '^Gid:' | awk '{print $2}')
-            # pid=$(cat /proc/$pid/status | grep '^Pid:' | awk '{print $2}')
-            # ppid=$(cat /proc/$pid/status | grep '^PPid:' | awk '{print $2}')
-            
-            # echo "Start ====================="
-            # #echo "PID: $pid, UID: $uid, GID: $gid, PPID: $ppid"
-            # cat /proc/$pid/status
-            # echo "End ====================="
-            ls -l /proc/$pid/ns/user
-        fi
-    done
-}
-
 startBuildkitd() {
     addr=
     helper=
@@ -54,8 +34,6 @@ startBuildkitd() {
     $helper $BUILDKITD --debug $BUILDKITD_FLAGS --addr=$addr >$tmp/log 2>&1 &
     pid=$!
     echo "buildkitd pid: $pid"
-    sleep 2
-    ps
     echo $pid >$tmp/pid
     echo $addr >$tmp/addr
 }

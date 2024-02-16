@@ -1,4 +1,4 @@
-docker build -t showpune/buildkit-test:rootless . --push
+docker build -t showpune/buildkit-test:rootless-nopush . --push
 
 #docker build -t showpune/buildkit-test:client . -f Dockerfile.client --push
 

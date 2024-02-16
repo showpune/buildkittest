@@ -1,0 +1,31 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: rootless-noproviledge-legion-job-nopush
+  labels:
+    type: buildkit-test
+spec:
+  template:
+    spec:
+      restartPolicy: Never
+      nodeName: virtual-node-legion-linux
+      nodeSelector:
+        kubernetes.io/os: linux
+        kubernetes.io/role: agent
+        type: virtual-kubelet
+      tolerations:
+      - key: virtual-kubelet.io/provider
+        operator: Exists
+      containers:
+      - name: buildkit-container
+        image: showpune/buildkit-test:rootless-nopush
+        imagePullPolicy: Always
+        securityContext:
+          allowPrivilegeEscalation: true
+        resources:
+          limits:
+            cpu: "1"
+            memory: "512Mi"
+          requests:
+            cpu: "0.5"
+            memory: "256Mi"
